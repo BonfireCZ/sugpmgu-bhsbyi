@@ -50,7 +50,7 @@ That means no more hardcoding wallet addresses or server ports — just edit the
 
 Each miner entry includes:
 - `algo`: mining algorithm (e.g. kawpow, firopow)
-- `miner`: executable name (e.g. t-rex, teamredminer)
+- `miner`: path to executable (e.g. t-rex.exe, miners/xmrig.exe)
 - `port`: default port used for the pool
 - `wallet`: your wallet address for that algo
 - `extra`: optional flags or parameters
@@ -64,3 +64,5 @@ Clone or download this repository, then run:
 
 ```powershell
 .\mine.ps1
+
+Pressing Ctrl+C will stop the current miner and return you to the menu, allowing you to launch a different one.

@@ -1,0 +1,5 @@
+# Config file (local only)
+config.json
+
+# Miner binaries
+miners/

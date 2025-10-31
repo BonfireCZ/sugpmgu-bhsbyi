@@ -128,10 +128,11 @@ function Run-Miner-With-Menu {
         return
     }
 
-    $miner  = $minerConfig.miner
-    $port   = $minerConfig.port
-    $wallet = $minerConfig.wallet
-    $extra  = $minerConfig.extra
+    $miner    = $minerConfig.miner
+    $port     = $minerConfig.port
+    $wallet   = $minerConfig.wallet
+    $extra    = $minerConfig.extra
+    $elevated = $minerConfig.elevated
 
     if ($minerConfig.server) {
         $server = $minerConfig.server
@@ -145,20 +146,47 @@ function Run-Miner-With-Menu {
     $startTime = Get-Date
 
     try {
-        
-        $arguments = "-a $algo -o stratum+tcp://$server -u $wallet -p c=BTC $extra"
+        # Sestavení argumentů jako pole
+        $argList = @(
+            "-a", $algo,
+            "-o", $server,
+            "-u", $wallet,
+            "-p", "c=BTC"
+        )
 
-        Write-Host "`n.\$miner.exe $arguments" -ForegroundColor Magenta
-
-        if ($minerConfig.elevated -eq $true) {
-            Start-Process -FilePath ".\$miner.exe" -ArgumentList $arguments -Verb RunAs
-        } else {
-            & ".\$miner.exe" $arguments
+        if ($extra) {
+            $extraArgs = $extra -split ' '
+            $argList += $extraArgs
         }
 
+        Write-Host "`nLaunching: $miner with arguments:" -ForegroundColor Magenta
+        Write-Host ($argList -join ' ') -ForegroundColor DarkGray
+
+        if ($elevated -eq $true) {
+            Start-Process -FilePath ".\$miner" -ArgumentList $argList -Verb RunAs
+        } else {
+            & ".\$miner" @argList
+        }
 
     } catch {
+        $endTime = Get-Date
+        $duration = $endTime - $startTime
+
+        Write-Host "`n----------------------------------------" -ForegroundColor $ColorMuted
         Write-Host "`nMINER INTERRUPTED OR ERROR: $($_.Exception.Message)" -ForegroundColor $ColorWarn
+        Write-Host "DURATION: $($duration.ToString("hh\:mm\:ss"))" -ForegroundColor $ColorStat
+        Write-Host ("START : {0}" -f $startTime) -ForegroundColor $ColorInfo
+        Write-Host ("END   : {0}" -f $endTime)   -ForegroundColor $ColorInfo
+        Write-Host "----------------------------------------" -ForegroundColor $ColorMuted
+
+        Write-Host "`nPRESS ENTER TO EXIT, OR TYPE R AND ENTER TO RESTART" -ForegroundColor Magenta
+        $input = Read-Host "CHOICE (Enter / R)"
+
+        if ($input -eq "R" -or $input -eq "r") {
+            & "$PSCommandPath"
+        } else {
+            Write-Host "`nEXITING. KEEP YOUR HASHRATE HIGH." -ForegroundColor $ColorDivider
+        }
     } finally {
         $endTime = Get-Date
         $duration = $endTime - $startTime
