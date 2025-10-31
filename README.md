@@ -1,11 +1,11 @@
 # Sugpmgu 🚀 Bhsbyi
 
 **Sugpmgu 🚀 Bhsbyi** Miner Launcher is a simple PowerShell-based tool that lets you launch different crypto miners depending on your choice.  
-One script, many miners – easy switching and quick start.
+One script, many miners – easy switching and quick start. 
 
 ## 🖥️ Preview
 
-![Screenshot](scr/v3.png)
+![Screenshot](scr/v4.png)
 
 
 ## 🧠 Notes from the Creator
@@ -32,6 +32,10 @@ The project is gradually evolving, based on whatever pops into my head. I keep a
 
 I'm testing it only on Windows 10 with PowerShell 5.1 — and yeah, the rocket emoji 🚀 doesn't render properly. Maybe it works on Windows 11 or PowerShell 7. Feel free to fix it!
 
+Eventually I got tired of tweaking wallet addresses and pool ports inside the script, so I asked the AI to move everything into a config file.  
+Now I just edit `config.json` and let the launcher figure it out.  
+If I ever switch pools or coins, I change one line and hit Enter.
+
 
 ## ✨ Features
 - Launch various miners (AMD, NVIDIA, CPU, iGPU)
@@ -39,7 +43,21 @@ I'm testing it only on Windows 10 with PowerShell 5.1 — and yeah, the rocket e
 - One-click start
 - Easy to extend with new miners
 
----
+## ⚙️ Configuration
+
+Now the launcher uses an external config file (`config.json`) to define miner settings.  
+That means no more hardcoding wallet addresses or server ports — just edit the JSON and go.
+
+Each miner entry includes:
+- `algo`: mining algorithm (e.g. kawpow, firopow)
+- `miner`: executable name (e.g. t-rex, teamredminer)
+- `port`: default port used for the pool
+- `wallet`: your wallet address for that algo
+- `extra`: optional flags or parameters
+- `server`: optional override of the pool address (if you want to ignore the default logic)
+- `elevated`: optional flag to run the miner as administrator (default is false, when true, it also runs in separate window)
+
+If `server` is defined, it overrides the default `stratum+tcp://$algo.eu.mine.zpool.ca:$port`.
 
 ## ⚡ Usage
 Clone or download this repository, then run:

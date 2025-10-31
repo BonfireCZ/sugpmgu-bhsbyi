@@ -6,13 +6,13 @@
 # -----------------------------
 # Paleta barev
 # -----------------------------
-$ColorHeader      = "Magenta"     # titles
-$ColorDivider     = "Cyan"        # separators
+$ColorHeader      = "Magenta"
+$ColorDivider     = "Cyan"
 $ColorLogoDark    = "DarkBlue"
 $ColorLogoMid1    = "Blue"
 $ColorLogoMid2    = "Cyan"
-$ColorItem        = "DarkMagenta" # unselected
-$ColorSelectedBg  = "Magenta"     # selected background
+$ColorItem        = "DarkMagenta"
+$ColorSelectedBg  = "Magenta"
 $ColorSelectedFg  = "Black"
 $ColorInfo        = "White"
 $ColorWarn        = "Red"
@@ -22,8 +22,6 @@ $ColorMuted       = "DarkGray"
 # -----------------------------
 # ASCII futuristicke logo
 # -----------------------------
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$rocket = [string]::Join('', [char]0xD83D, [char]0xDE80)
 $rocket = "🚀"
 $rocket = ""
 $logo = @"
@@ -46,25 +44,17 @@ $logo = @"
 # -----------------------------
 $Host.UI.RawUI.BackgroundColor = "Black"
 $Host.UI.RawUI.ForegroundColor = "White"
-$raw = $Host.UI.RawUI
-$size = $raw.WindowSize
-if ($size.Width -lt 80) { $size.Width = 80 }
-if ($size.Height -lt 25) { $size.Height = 25 }
-$raw.WindowSize = $size
-
-$size = New-Object System.Management.Automation.Host.Size(96,25)
+$size = New-Object System.Management.Automation.Host.Size(96,36)
 $Host.UI.RawUI.WindowSize = $size
-
 Clear-Host
 
 # -----------------------------
-# Prednastavene hodnoty
+# Nacteni konfigurace
 # -----------------------------
-$wallet = "bc1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-$worker = "desktop"
+$config = Get-Content ".\config.json" | ConvertFrom-Json
 
 # -----------------------------
-# Funkce: Logo s gradientem + glow
+# Funkce: Logo s gradientem
 # -----------------------------
 function Render-Logo-Gradient {
     param([string]$logoText)
@@ -72,9 +62,7 @@ function Render-Logo-Gradient {
     $colors = @($ColorLogoDark,$ColorLogoMid1,$ColorLogoMid2,$ColorLogoMid1,$ColorLogoDark)
     foreach ($i in 0..($lines.Length-1)) {
         $c = $colors[$i % $colors.Length]
-        # glow base
         Write-Host $lines[$i] -ForegroundColor $ColorLogoDark
-        # bright line
         Write-Host $lines[$i] -ForegroundColor $c
     }
 }
@@ -91,7 +79,6 @@ function Show-Menu-Neon {
     while ($true) {
         Clear-Host
         Render-Logo-Gradient -logoText $logo
-
         Write-Host ""
         Write-Host $Title -ForegroundColor $ColorHeader
         $lineWidth = [Math]::Min($Host.UI.RawUI.WindowSize.Width - 4, 100)
@@ -129,93 +116,46 @@ function Run-Miner-With-Menu {
     Clear-Host
     Render-Logo-Gradient -logoText $logo
 
-    $algos = @("kawpow","kawpow-amd", "firopow", "ghostrider", "verushash", "yespower", "randomx")
+    $algos = $config.miners.algo | Sort-Object -Unique
     $algo = Show-Menu-Neon -Title "SELECT ALGORITHM" -Options $algos
     if ($algo -eq "__QUIT__") { Write-Host "`nEXITING." -ForegroundColor $ColorDivider; return }
     if ($algo -eq "__RESET__") { & "$PSCommandPath" }
 
-    switch ($algo) {
-        "kawpow"     { $coins = @("AUTOMATIC", "RVN", "MEWC", "CLORE", "DYNAMIC (ZPOOL API)") }
-        "firopow"    { $coins = @("AUTOMATIC") }
-        "kawpow-amd" { $coins = @("AUTOMATIC") }
-        "ghostrider" { $coins = @("AUTOMATIC", "RTM") }
-        "verushash"  { $coins = @("AUTOMATIC", "VRSC") }
-        "yespower"   { $coins = @("AUTOMATIC") }
-    }
-    $coinChoice = Show-Menu-Neon -Title ("SELECT COIN / MODE FOR " + $algo) -Options $coins
-    if ($coinChoice -eq "__QUIT__") { Write-Host "`nEXITING." -ForegroundColor $ColorDivider; return }
-    if ($coinChoice -eq "__RESET__") { & "$PSCommandPath" }
+    $minerConfig = $config.miners | Where-Object { $_.algo -eq $algo }
 
-    if ($algo -eq "kawpow") {
-        if ($coinChoice -eq "DYNAMIC (ZPOOL API)") {
-            try {
-                $response = Invoke-RestMethod "http://www.zpool.ca/api/status"
-                $kawpowCoins = $response.pools | Where-Object { $_.algo -eq "kawpow" }
-                $coin = ($kawpowCoins | Sort-Object estimate_current -Descending)[0].name
-                Write-Host "`nBEST COIN FROM ZPOOL API: $coin" -ForegroundColor Green
-		$zap = ",zap=$coin"
-		$port = "1325"
-		$miner = "t-rex"
-                Start-Sleep -Seconds 2
-            } catch {
-                Write-Host "`nERROR LOADING API. USING AUTO AS FALLBACK." -ForegroundColor $ColorWarn
-                $zap = ""
-		$port = "1325"
-		$miner = "t-rex"
-                Start-Sleep -Seconds 2
-            }
-        } else {
-            $zap = ",zap=$coinChoice"
-            $port = "1325"
-            $miner = "t-rex"
-        }
-    } elseif ($algo -eq "firopow") {
-            $zap = ",zap=$coinChoice"
-            $port = "1326"
-            $miner = "t-rex"
-    } elseif ($algo -eq "ghostrider") {
-            $zap = ",zap=$coinChoice"
-            $port = "5354"
-            $miner = "cpuminer-avx2-sha-vaes"
-    } elseif ($algo -eq "verushash") {
-            $zap = ",zap=$coinChoice"
-            $port = "6143"
-            $miner = "cpuminer-avx2-sha-vaes"
-    } elseif ($algo -eq "yespower") {
-            $zap = ",zap=$coinChoice"
-            $port = "6234"
-            $miner = "cpuminer-aes-sse42"
-            $miner = "cpuminer-avx2-sha-vaes"
-    } elseif ($algo -eq "kawpow-amd") {
-            $algo = "kawpow"
-            $zap = ",zap=$coinChoice"
-            $port = "1325"
-            $miner = "teamredminer"
-            $extra = " -d 0 "
+    if (-not $minerConfig) {
+        Write-Host "`nERROR: No config found for $algo" -ForegroundColor $ColorWarn
+        return
+    }
+
+    $miner  = $minerConfig.miner
+    $port   = $minerConfig.port
+    $wallet = $minerConfig.wallet
+    $extra  = $minerConfig.extra
+
+    if ($minerConfig.server) {
+        $server = $minerConfig.server
     } else {
-            $zap = ""
-            $port = "666"
-            $miner = ""
+        $server = "stratum+tcp://$algo.eu.mine.zpool.ca:$port"
     }
-
-	if ($coinChoice -eq "AUTOMATIC") {
-            $zap = ""
-        }
-
-    $server = "$algo.eu.mine.zpool.ca:$port"
 
     Clear-Host
     Render-Logo-Gradient -logoText $logo
-    Write-Host "`nLAUNCHING: $coin ON $algo (EU SERVER)" -ForegroundColor Green
+    Write-Host "`nLAUNCHING: $algo miner on EU server" -ForegroundColor Green
     $startTime = Get-Date
 
     try {
-        Write-Host "`n.\$miner.exe -a $algo -o stratum+tcp://$server -u $wallet -p c=BTC$zap $extra" -ForegroundColor Magenta
-        #& .\$miner.exe -a $algo -o stratum+tcp://$server -u $wallet -p c=BTC$zap $extra
+        
+        $arguments = "-a $algo -o stratum+tcp://$server -u $wallet -p c=BTC $extra"
 
-Start-Process -FilePath ".\$miner.exe" `
-    -ArgumentList "-a $algo -o stratum+tcp://$server -u $wallet -p c=BTC$zap $extra" `
-    -Verb RunAs
+        Write-Host "`n.\$miner.exe $arguments" -ForegroundColor Magenta
+
+        if ($minerConfig.elevated -eq $true) {
+            Start-Process -FilePath ".\$miner.exe" -ArgumentList $arguments -Verb RunAs
+        } else {
+            & ".\$miner.exe" $arguments
+        }
+
 
     } catch {
         Write-Host "`nMINER INTERRUPTED OR ERROR: $($_.Exception.Message)" -ForegroundColor $ColorWarn
