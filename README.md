@@ -5,7 +5,7 @@ One script, many miners – easy switching and quick start.
 
 ## 🖥️ Preview
 
-![Screenshot](scr/v2.png)
+![Screenshot](scr/v3.png)
 
 
 ## 🧠 Notes from the Creator
