@@ -1,6 +1,6 @@
-# Sugpmgu 🚀 Bhsbyi
+# Sugpmgu 🚀 Bhsnyi
 
-**Sugpmgu 🚀 Bhsbyi** Miner Launcher is a simple PowerShell-based tool that lets you launch different crypto miners depending on your choice.  
+**Sugpmgu 🚀 Bhsnyi** miner launcher is a simple PowerShell-based tool that lets you launch different crypto miners depending on your choice.  
 One script, many miners – easy switching and quick start. 
 
 ## 🖥️ Preview
@@ -10,7 +10,7 @@ One script, many miners – easy switching and quick start.
 
 ## 🧠 Notes from the Creator
 
-I built this miner entirely with MS Copilot AI — mostly because I'm lazy. 
+I built this miner launcher entirely with MS Copilot AI — mostly because I'm lazy. 
 
 ---
 
@@ -20,7 +20,7 @@ I'm not using any paid tokens to support it yet, just the free version tied to m
 
 Sometimes I stick with basic conversation models, but occasionally I switch to "Think Deeper" or "Smart (GPT-5)" just for fun — I'm curious like that.
 
-It all started with a simple menu based on what I typed into the chat window. Then I asked it to make things better, add features, and even create a logo. It generated some ASCII art that looked funny as hell, because it said "SUGPMGU BHSBYI". So the name was chosen.
+It all started with a simple menu based on what I typed into the chat window. Then I asked it to make things better, add features, and even create a logo. It generated some ASCII art that looked funny as hell, because it said "SUGPMGU BHSNYI". So the name was chosen.
 
 I asked AI how to publish it on GitHub, followed the steps, and here we are. I have also changed branch from main to master, because I think it is master piece of course.
 
@@ -39,7 +39,7 @@ If I ever switch pools or coins, I change one line and hit Enter.
 
 ## ✨ Features
 - Launch various miners (AMD, NVIDIA, CPU, iGPU)
-- Simple configuration via variables
+- Simple configuration via config file
 - One-click start
 - Easy to extend with new miners
 
@@ -64,5 +64,6 @@ Clone or download this repository, then run:
 
 ```powershell
 .\mine.ps1
+```
 
 Pressing Ctrl+C will stop the current miner and return you to the menu, allowing you to launch a different one.
