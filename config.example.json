@@ -1,0 +1,26 @@
+{
+  "miners": [
+    {
+      "algo": "kawpow",
+      "miner": "miners/t-rex.exe",
+      "port": "1325",
+      "wallet": "bc1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "extra": ""
+    },
+    {
+      "algo": "yespower",
+      "miner": "miners/cpuminer-avx2-sha-vaes.exe",
+      "port": "6234",
+      "wallet": "bc1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "extra": ""
+    },
+    {
+      "algo": "randomx",
+      "miner": "miners/xmrig.exe",
+      "elevated": true,
+      "wallet": "47xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.dekstop",
+      "extra": "--coin=\"monero\"",
+      "server": "de.monero.herominers.com:1111"
+    }
+  ]
+}
